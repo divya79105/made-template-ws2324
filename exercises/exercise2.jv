@@ -1,5 +1,4 @@
 pipeline TrainStopPipeline {
-
     block CsvHttpExtractor oftype HttpExtractor {
         url: "https://download-data.deutschebahn.com/static/datasets/haltestellen/D_Bahnhof_2020_alle.CSV";
     }
@@ -14,15 +13,15 @@ pipeline TrainStopPipeline {
     block TrainStopTableInterpreter oftype TableInterpreter {
         header: true;
         columns: [
-            "EVA_NR" oftype text,
+            "EVA_NR" oftype integer,
             "DS100" oftype text,
-            "IFOPT" oftype text,
-            "NAME" oftype text,
-            "Verkehr" oftype text,
+            "IFOPT" oftype IfOptType,
+            "NAME" oftype TextType,
+            "Verkehr" oftype VerkehrType,
             "Laenge" oftype decimal,
             "Breite" oftype decimal,
-            "Betreiber_Name" oftype text,
-            "Betreiber_Nr" oftype text
+            "Betreiber_Name" oftype TextType,
+            "Betreiber_Nr" oftype integer
         ];
     }
 
@@ -34,36 +33,28 @@ pipeline TrainStopPipeline {
     // Define the pipeline flow as a single pipe
     CsvHttpExtractor -> CsvTextFileInterpreter -> CsvFileInterpreter -> TrainStopTableInterpreter -> TrainStopLoader;
 }
-  valuetype VerkehrType oftype text {
-        constraints: [ ValidVerkehrValues ];
-    }
 
-    valuetype CordinateType oftype decimal {
-        constraints: [ ValidGeographicCordinates ];
-    }
+valuetype VerkehrType oftype text {
+    constraints: [ValidVerkehrValues];
+}
 
-    valuetype IfOptType oftype text {
-        constraints: [ ValidIfOptValues ];
-    }
+valuetype IfOptType oftype text {
+    constraints: [ValidIfOptValues];
+}
 
-    valuetype TextType oftype text {
-        constraints: [ NonEmptyValues ];
-    }
+valuetype TextType oftype text {
+    constraints: [NonEmptyValues];
+}
 
-    constraint ValidVerkehrValues oftype AllowlistConstraint {
-        allowlist: ["FV", "RV", "nur DPN"];
-    }
+constraint ValidVerkehrValues oftype AllowlistConstraint {
+    allowlist: ["FV", "RV", "nur DPN"];
+}
 
-    constraint ValidGeographicCordinates oftype RangeConstraint {
-        lowerBound: -90;
-        upperBound: 90;
-    }
+constraint ValidIfOptValues oftype RegexConstraint {
+    regex: /^[a-zA-Z]{2}:\d+:\d+(?::\d+)?$/;
+}
 
-    constraint ValidIfOptValues oftype RegexConstraint {
-        regex: /^[a-zA-Z]{2}:\d+:\d+(?::\d+)?$/;
-    }
-
-    constraint NonEmptyValues oftype LengthConstraint {
-        minLength: 1;
-        maxLength: 9007199254740991;
-    }
+constraint NonEmptyValues oftype LengthConstraint {
+    minLength: 1;
+    maxLength: 9007199254740991;
+}
