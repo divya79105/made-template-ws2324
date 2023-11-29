@@ -34,3 +34,36 @@ pipeline TrainStopPipeline {
     // Define the pipeline flow as a single pipe
     CsvHttpExtractor -> CsvTextFileInterpreter -> CsvFileInterpreter -> TrainStopTableInterpreter -> TrainStopLoader;
 }
+  valuetype VerkehrType oftype text {
+        constraints: [ ValidVerkehrValues ];
+    }
+
+    valuetype CordinateType oftype decimal {
+        constraints: [ ValidGeographicCordinates ];
+    }
+
+    valuetype IfOptType oftype text {
+        constraints: [ ValidIfOptValues ];
+    }
+
+    valuetype TextType oftype text {
+        constraints: [ NonEmptyValues ];
+    }
+
+    constraint ValidVerkehrValues oftype AllowlistConstraint {
+        allowlist: ["FV", "RV", "nur DPN"];
+    }
+
+    constraint ValidGeographicCordinates oftype RangeConstraint {
+        lowerBound: -90;
+        upperBound: 90;
+    }
+
+    constraint ValidIfOptValues oftype RegexConstraint {
+        regex: /^[a-zA-Z]{2}:\d+:\d+(?::\d+)?$/;
+    }
+
+    constraint NonEmptyValues oftype LengthConstraint {
+        minLength: 1;
+        maxLength: 9007199254740991;
+    }
