@@ -1,35 +1,63 @@
 import pandas as pd
-import requests
-from io import StringIO
-from sqlalchemy import create_engine
+import sqlite3
 
-# Step 1: Download the CSV data
+# 1. Download data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
-response = requests.get(url)
-data = StringIO(response.text)
+df = pd.read_csv(url, encoding='latin1', skiprows=6, skipfooter=4, engine='python')
 
-# Step 2: Read the CSV data into a DataFrame
-df = pd.read_csv(data, encoding='latin1', delimiter=';', skiprows=6, skipfooter=4, engine='python')
+# 2. Reshape data structure
+selected_columns = {
+    'A': 'date',
+    'B': 'CIN',
+    'C': 'name',
+    'M': 'petrol',
+    'W': 'diesel',
+    'AG': 'gas',
+    'AQ': 'electro',
+    'BA': 'hybrid',
+    'BK': 'plugInHybrid',
+    'BU': 'others'
+}
+df = df.rename(columns=selected_columns)
 
-# Extract relevant columns
-columns_to_keep = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
-df = df.iloc[:, [0, 1, 2, 12, 22, 33, 42, 49, 54, 64]]
-df.columns = columns_to_keep
+# 3. Validate data
+name_column = [col for col in df.columns if 'name' in col.lower()]
+CIN_column = [col for col in df.columns if 'cin' in col.lower()]
 
-# Step 3: Validate data and drop rows with invalid values
-# Define validation functions
-def validate_cin(cin):
-    return isinstance(cin, str) and len(cin) == 5 and cin.isdigit()
+# validation for positive integers > 0 for all other columns
+other_columns = [col for col in df.columns if col not in ['date', 'CIN', 'name']]
+for col in other_columns:
+    df = df[df[col].astype(str).apply(lambda x: x.isdigit() and int(x) > 0)]
 
-def validate_positive_integer(value):
-    return isinstance(value, int) and value > 0
+if name_column:
+    df = df[df[name_column[0]].astype(str).apply(lambda x: isinstance(x, str))]  # Validate 'name' as string
 
-# Apply validations and drop rows with invalid values
-df = df[df['CIN'].apply(validate_cin)]
-df = df[df.iloc[:, 3:].applymap(validate_positive_integer).all(axis=1)]
+if CIN_column:
+    df = df[df[CIN_column[0]].astype(str).apply(lambda x: len(x) == 5 and x.isdigit() or (x.isdigit() and x.startswith('0')))]  # Validate 'CIN'
 
-# Step 4: Write data to SQLite database
-engine = create_engine('sqlite:///cars.sqlite')
-df.to_sql('cars', engine, index=False, if_exists='replace')
+# Drop rows with missing or invalid values
+df = df.dropna()
 
-print("Data written to SQLite database successfully.")
+# 4. Use fitting SQLite types for all columns
+sqlite_types = {
+    'date': 'TEXT',
+    'CIN': 'TEXT',
+    'name': 'TEXT',
+    'petrol': 'REAL',
+    'diesel': 'REAL',
+    'gas': 'REAL',
+    'electro': 'REAL',
+    'hybrid': 'REAL',
+    'plugInHybrid': 'REAL',
+    'others': 'REAL'
+}
+
+# 5. Write data to SQLite database
+db_path = "cars.sqlite"
+table_name = "cars"
+
+conn = sqlite3.connect(db_path)
+df.to_sql(table_name, conn, index=False, if_exists='replace', dtype=sqlite_types)
+conn.close()
+
+print(f"Data written to {db_path}, table: {table_name}")
