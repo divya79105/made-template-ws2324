@@ -24,7 +24,7 @@ df = df.rename(columns=selected_columns)
 name_column = [col for col in df.columns if 'name' in col.lower()]
 CIN_column = [col for col in df.columns if 'cin' in col.lower()]
 
-# validation for positive integers > 0 for all other columns
+# Additional validation for positive integers > 0 for all other columns
 other_columns = [col for col in df.columns if col not in ['date', 'CIN', 'name']]
 for col in other_columns:
     df = df[df[col].astype(str).apply(lambda x: x.isdigit() and int(x) > 0)]
@@ -39,18 +39,7 @@ if CIN_column:
 df = df.dropna()
 
 # 4. Use fitting SQLite types for all columns
-sqlite_types = {
-    'date': 'TEXT',
-    'CIN': 'TEXT',
-    'name': 'TEXT',
-    'petrol': 'REAL',
-    'diesel': 'REAL',
-    'gas': 'REAL',
-    'electro': 'REAL',
-    'hybrid': 'REAL',
-    'plugInHybrid': 'REAL',
-    'others': 'REAL'
-}
+sqlite_types = {col: 'TEXT' if df[col].dtype == 'O' else 'REAL' for col in df.columns}
 
 # 5. Write data to SQLite database
 db_path = "cars.sqlite"
