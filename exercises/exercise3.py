@@ -35,6 +35,10 @@ for col in other_columns:
 # Drop rows with missing or invalid values
 df = df.dropna()
 
+# Print for debugging
+print("Data after reshaping and validation:")
+print(df.head())
+
 # 4. Use fitting SQLite types for all columns
 sqlite_types = {'date': 'TEXT', 'CIN': 'TEXT', 'name': 'TEXT',
                 'petrol': 'INTEGER', 'diesel': 'INTEGER', 'gas': 'INTEGER',
