@@ -45,8 +45,9 @@ sqlite_types = {'date': 'TEXT', 'CIN': 'TEXT', 'name': 'TEXT',
                 'electro': 'INTEGER', 'hybrid': 'INTEGER', 'plugInHybrid': 'INTEGER', 'others': 'INTEGER'}
 
 # 5. Write data to SQLite database
-db_path = "cars.sqlite"
-table_name = "cars"
+conn = sqlite3.connect('cars.sqlite')
+df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types)
+conn.close()
 
 conn = sqlite3.connect(db_path)
 df.to_sql(table_name, conn, index=False, if_exists='replace', dtype=sqlite_types)
