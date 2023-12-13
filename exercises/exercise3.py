@@ -31,8 +31,9 @@ if CIN_column:
 df = df.dropna()
 
 # 4. Use fitting SQLite types for all columns
-sqlite_types = {col: 'TEXT' if df[col].dtype == 'O' else 'REAL' for col in df.columns}
-
+sqlite_types = {'date': 'TEXT', 'CIN': 'TEXT', 'name': 'TEXT',
+                'petrol': 'INTEGER', 'diesel': 'INTEGER', 'gas': 'INTEGER',
+                'electro': 'INTEGER', 'hybrid': 'INTEGER', 'plugInHybrid': 'INTEGER', 'others': 'INTEGER'}
 # 5. Write data to SQLite database
 db_path = "cars.sqlite"
 table_name = "cars"
