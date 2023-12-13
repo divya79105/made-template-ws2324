@@ -30,6 +30,12 @@ if name_column:
 # Ensure 'CIN' column is a string of length 5
 df['CIN'] = df['CIN'].astype(str).apply(lambda x: x.zfill(5) if x.isdigit() else x)
 
+# Validate other columns as positive integers > 0
+numeric_columns = ['petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
+
+for col in numeric_columns:
+    df = df[df[col].astype(str).apply(lambda x: x.isdigit() and int(x) > 0)]
+
 # Drop rows with missing or invalid values
 df = df.dropna()
 
@@ -38,13 +44,13 @@ sqlite_types = {
     'date': 'TEXT',
     'CIN': 'TEXT',
     'name': 'TEXT',
-    'petrol': 'FLOAT',
-    'diesel': 'FLOAT',
-    'gas': 'FLOAT',
-    'electro': 'FLOAT',
-    'hybrid': 'FLOAT',
-    'plugInHybrid': 'FLOAT',
-    'others': 'FLOAT'
+    'petrol': 'INTEGER',
+    'diesel': 'INTEGER',
+    'gas': 'INTEGER',
+    'electro': 'INTEGER',
+    'hybrid': 'INTEGER',
+    'plugInHybrid': 'INTEGER',
+    'others': 'INTEGER'
 }
 
 # Write data to SQLite database
