@@ -37,7 +37,6 @@ print("DataFrame dimensions:", df.shape)
 print(df)
 
 # Step 4: Use fitting SQLite types
-# Define SQLite types
 sqlite_types = {
     'date': 'TEXT',
     'CIN': 'TEXT',
@@ -55,3 +54,4 @@ sqlite_types = {
 conn = sqlite3.connect('cars.sqlite')
 df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types, encoding='utf-8')
 conn.close()
+
