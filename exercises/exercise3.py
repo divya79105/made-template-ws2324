@@ -16,11 +16,13 @@ df = df[new_column_names]
 
 # Step 3: Validate data
 # Validate CINs
-df['CIN'] = df['CIN'].astype(str).str.zfill(5)
+df['CIN'] = df['CIN'].apply(lambda x: f'{x:0>5}')
 
 # Validate positive integers
 numeric_columns = ['petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
-df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
+
+df = df[df[numeric_columns].apply(pd.to_numeric, errors='coerce').gt(0).all(axis=1)]
+
 
 print(df)
 
