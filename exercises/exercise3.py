@@ -15,21 +15,13 @@ df.rename(columns=column_mapping, inplace=True)
 df = df[new_column_names]
 
 # Step 3: Validate data
-# Validate alphanumeric characters in the 'name' column
-df = df[df['name'].astype(str).str.isalpha()]
+# Validate CINs
+df['CIN'] = df['CIN'].astype(str).str.zfill(5)
 
-# Validate and fill leading zeros in the 'CIN' column
-df['CIN'] = df['CIN'].astype(str).apply(lambda x: x.zfill(5) if x.isdigit() else x)
-
-# Validate positive integers using pd.to_numeric
+# Validate positive integers
 numeric_columns = ['petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
-for col in numeric_columns:
-    df[col] = pd.to_numeric(df[col], errors='coerce')
+df = df.loc[(df[numeric_columns].apply(pd.to_numeric, errors='coerce') > 0).all(axis=1)]
 
-# Drop rows with missing or invalid values
-df = df.dropna()
-
-print("DataFrame dimensions:", df.shape)
 print(df)
 
 # Step 4: Use fitting SQLite types
