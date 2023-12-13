@@ -3,7 +3,7 @@ import sqlite3
 
 # 1. Download data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
-df = pd.read_csv(url, encoding='latin1', skiprows=6, skipfooter=4, engine='python')
+df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # 2. Reshape data structure
 columns_to_keep = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
@@ -13,15 +13,11 @@ column_mapping = dict(zip(columns_to_keep, new_column_names))
 df.rename(columns=column_mapping, inplace=True)
 
 # 3. Validate data
-# Additional validation for positive integers > 0 for all other columns
 other_columns = [col for col in df.columns if col not in ['date', 'CIN', 'name']]
 for col in other_columns:
     df = df[df[col].astype(str).apply(lambda x: x.isdigit() and int(x) > 0)]
 
-# Validate 'name' as a string
 df = df[df['name'].astype(str).apply(lambda x: isinstance(x, str))]
-
-# Validate 'CIN'
 df = df[df['CIN'].astype(str).apply(lambda x: len(x) == 5 and x.isdigit() or (x.isdigit() and x.startswith('0')))]
 
 # Drop rows with missing or invalid values
