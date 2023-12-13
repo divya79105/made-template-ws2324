@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlite3
-
+from urllib.request import urlopen
+from io import StringIO
 #1. Download the data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
