@@ -13,15 +13,11 @@ column_mapping = dict(zip(columns_to_keep, new_column_names))
 df.rename(columns=column_mapping, inplace=True)
 
 # 3. Validate data
-other_columns = [col for col in df.columns if col not in ['date', 'CIN', 'name']]
-for col in other_columns:
-    df = df[df[col].astype(str).apply(lambda x: x.isdigit() and int(x) > 0)]
+df['CIN'] = df['CIN'].astype(str).str.zfill(5)
 
-df = df[df['name'].astype(str).apply(lambda x: isinstance(x, str))]
-df = df[df['CIN'].astype(str).apply(lambda x: len(x) == 5 and x.isdigit() or (x.isdigit() and x.startswith('0')))]
-
-# Drop rows with missing or invalid values
-df = df.dropna()
+# Validate positive integers
+numeric_columns = ['petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
+df = df.loc[(df[numeric_columns].apply(pd.to_numeric, errors='coerce') > 0).all(axis=1)]
 
 # 4. Use fitting SQLite types for all columns
 sqlite_types = {'date': 'TEXT', 'CIN': 'TEXT', 'name': 'TEXT',
