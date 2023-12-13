@@ -53,5 +53,5 @@ sqlite_types = {
 
 # Step 5: Write data to SQLite database
 conn = sqlite3.connect('cars.sqlite')
-df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types)
+df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types, encoding='utf-8')
 conn.close()
