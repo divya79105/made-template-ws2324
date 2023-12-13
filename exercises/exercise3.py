@@ -9,7 +9,7 @@ df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, 
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # Define columns to keep and their new names
-old_columns = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'M', 'W', 'AG', 'AQ', 'BA', 'BK', 'BU']
+old_columns = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
 new_columnss = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
 # Rename and select columns
