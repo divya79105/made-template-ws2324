@@ -3,6 +3,7 @@ import sqlite3
 
 # Step 1: Download the data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
+# Specify the encoding to maintain German umlauts
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # Step 2: Reshape the data structure
@@ -13,11 +14,14 @@ column_mapping = dict(zip(columns_to_keep, new_column_names))
 
 df.rename(columns=column_mapping, inplace=True)
 
+# Select and reorder columns
 df = df[new_column_names]
+
 # Step 3: Validate data
+# Validate alphanumeric characters in the 'name' column
 df = df[df['name'].astype(str).str.isalpha()]
 
-# Validate CINs
+# Validate and fill leading zeros in the 'CIN' column
 df['CIN'] = df['CIN'].astype(str).apply(lambda x: x.zfill(5) if x.isdigit() else x)
 
 # Validate positive integers using pd.to_numeric
@@ -28,6 +32,8 @@ for col in numeric_columns:
 # Drop rows with missing or invalid values
 df = df.dropna()
 
+# Print dimensions and inspect the DataFrame
+print("DataFrame dimensions:", df.shape)
 print(df)
 
 # Step 4: Use fitting SQLite types
