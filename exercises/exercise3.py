@@ -3,7 +3,6 @@ import sqlite3
 
 # Step 1: Download the data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
-# Specify the encoding to maintain German umlauts
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # Step 2: Reshape the data structure
@@ -13,8 +12,6 @@ new_column_names = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro',
 column_mapping = dict(zip(columns_to_keep, new_column_names))
 
 df.rename(columns=column_mapping, inplace=True)
-
-# Select and reorder columns
 df = df[new_column_names]
 
 # Step 3: Validate data
@@ -32,7 +29,6 @@ for col in numeric_columns:
 # Drop rows with missing or invalid values
 df = df.dropna()
 
-# Print dimensions and inspect the DataFrame
 print("DataFrame dimensions:", df.shape)
 print(df)
 
@@ -52,6 +48,6 @@ sqlite_types = {
 
 # Step 5: Write data to SQLite database
 conn = sqlite3.connect('cars.sqlite')
-df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types, encoding='utf-8')
+df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types)
 conn.close()
 
