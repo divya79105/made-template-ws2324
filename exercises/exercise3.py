@@ -25,11 +25,8 @@ columns_to_keep = {
 df = df[columns_to_keep.keys()]
 df = df.rename(columns=columns_to_keep)
 
-# Data validation
-name_column = [col for col in df.columns if 'name' in col.lower()]
-
-if name_column:
-    df = df[df[name_column[0]].astype(str).apply(lambda x: isinstance(x, str))]  # Validate 'name' as string
+# Validate 'name' column as a string
+df = df[df['name'].astype(str).str.isalpha()]
 
 # Ensure 'CIN' column is a string of length 5
 df['CIN'] = df['CIN'].astype(str).apply(lambda x: x.zfill(5) if x.isdigit() else x)
