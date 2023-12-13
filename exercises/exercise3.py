@@ -20,7 +20,7 @@ df['CIN'] = df['CIN'].astype(str).str.zfill(5)
 
 # Validate positive integers
 numeric_columns = ['petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
-df = df.loc[(df[numeric_columns].apply(pd.to_numeric, errors='coerce') > 0).all(axis=1)]
+df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
 
 print(df)
 
