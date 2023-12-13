@@ -6,13 +6,11 @@ url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 #2. Reshape data structure
-df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
-# Define columns to keep and their new names
+
 old_columns = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
 new_columnss = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
-# Rename and select columns
 df = df[old_columns].rename(columns=dict(zip(old_columns, new_columns)))
 
 
