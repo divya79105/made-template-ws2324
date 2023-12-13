@@ -3,7 +3,7 @@ import sqlite3
 
 # Download data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
-df = pd.read_csv(url, encoding='latin1', skiprows=6, skipfooter=4, engine='python')
+df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # Keep only selected columns and rename them
 selected_columns = {
