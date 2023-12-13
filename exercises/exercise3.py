@@ -1,7 +1,6 @@
 import pandas as pd
 import sqlite3
-from urllib.request import urlopen
-from io import StringIO
+
 #1. Download the data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
@@ -40,9 +39,7 @@ sqlite_types = {
 }
 
 #5. Write data into a SQLite database
-db_path = 'cars.sqlite'
-conn = sqlite3.connect(db_path)
+conn = sqlite3.connect('cars.sqlite')
 df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types)
 conn.close()
 
-print(f"Data has been successfully written to {db_path}, table 'cars'.")
