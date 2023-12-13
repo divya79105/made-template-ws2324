@@ -40,7 +40,9 @@ sqlite_types = {
 }
 
 #5. Write data into a SQLite database
-conn = sqlite3.connect('cars.sqlite')
+db_path = 'cars.sqlite'
+conn = sqlite3.connect(db_path)
 df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types)
 conn.close()
 
+print(f"Data has been successfully written to {db_path}, table 'cars'.")
