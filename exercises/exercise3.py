@@ -40,19 +40,8 @@ for col in numeric_columns:
 # Drop rows with missing or invalid values
 df = df.dropna()
 
-# Specify SQLite types for columns
-sqlite_types = {
-    'date': 'TEXT',
-    'CIN': 'TEXT',
-    'name': 'TEXT',
-    'petrol': 'INTEGER',
-    'diesel': 'INTEGER',
-    'gas': 'INTEGER',
-    'electro': 'INTEGER',
-    'hybrid': 'INTEGER',
-    'plugInHybrid': 'INTEGER',
-    'others': 'INTEGER'
-}
+# Infer SQLite types for columns
+sqlite_types = df.infer_objects().dtypes.apply(lambda x: 'TEXT' if x == 'object' else x).to_dict()
 
 # Write data to SQLite database
 db_path = "cars.sqlite"
@@ -61,7 +50,7 @@ table_name = "cars"
 # Connect to SQLite database
 conn = sqlite3.connect(db_path)
 
-# Write DataFrame to SQLite table with specified types
+# Write DataFrame to SQLite table with inferred types
 df.to_sql(table_name, conn, index=False, if_exists='replace', dtype=sqlite_types)
 
 # Close the database connection
