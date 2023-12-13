@@ -7,23 +7,11 @@ url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 #2. Reshape data structure
-columns_mapping = {
-    'Unnamed: 0': 'date',
-    'Unnamed: 1': 'CIN',
-    'Unnamed: 2': 'name',
-    'Unnamed: 12': 'petrol',
-    'Unnamed: 22': 'diesel',
-    'Unnamed: 33': 'gas',
-    'Unnamed: 42': 'electro',
-    'Unnamed: 52': 'hybrid',
-    'Unnamed: 63': 'plugInHybrid',
-    'Unnamed: 73': 'others'
-}
-df.rename(columns=columns_mapping, inplace=True)
+columns= ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'M', 'W', 'AG', 'AQ', 'BA', 'BK', 'BU']
+new_column= ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
-# Keep only the specified columns
-selected_columns = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
-df = df[selected_columns]
+df = df[columns].rename(columns=dict(zip(column, new_column_names)))
+
 #3. Validate data
 # Validate CINs
 df['CIN'] = df['CIN'].apply(lambda x: f'{x:0>5}')
