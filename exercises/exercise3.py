@@ -6,13 +6,14 @@ url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 #2. Reshape data structure
+columns_to_keep = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
+new_column_names = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
+column_mapping = dict(zip(columns_to_keep, new_column_names))
 
-old_columns = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
-new_columnss = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
+df.rename(columns=column_mapping, inplace=True)
 
-df = df.rename(columns=dict(zip(old_columns, new_columns)))[new_columns]
-
+df = df[new_column_names]
 
 #3. Validate data
 # Validate CINs
