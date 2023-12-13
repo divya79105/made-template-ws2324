@@ -7,14 +7,22 @@ df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, 
 
 
 # Step 2: Reshape the data structure
-columns_to_keep = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
-new_column_names = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
+columns_to_keep = {
+    'A': 'date',
+    'B': 'CIN',
+    'C': 'name',
+    'M': 'petrol',
+    'W': 'diesel',
+    'AG': 'gas',
+    'AQ': 'electro',
+    'BA': 'hybrid',
+    'BK': 'plugInHybrid',
+    'BU': 'others'
+}
 
-column_mapping = dict(zip(columns_to_keep, new_column_names))
-
-df.rename(columns=column_mapping, inplace=True)
-
-df = df[new_column_names]
+# Keep only specified columns and rename them
+df = df[columns_to_keep.keys()]
+df = df.rename(columns=columns_to_keep)
 
 # Step 3: Validate data
 df = df[df['name'].astype(str).str.isalpha()]
@@ -33,9 +41,18 @@ print(df)
 
 # Step 4: Use fitting SQLite types
 # Define SQLite types
-sqlite_types = {'date': 'TEXT', 'CIN': 'TEXT', 'name': 'TEXT',
-                'petrol': 'INTEGER', 'diesel': 'INTEGER', 'gas': 'INTEGER',
-                'electro': 'INTEGER', 'hybrid': 'INTEGER', 'plugInHybrid': 'INTEGER', 'others': 'INTEGER'}
+sqlite_types = {
+    'date': 'TEXT',
+    'CIN': 'TEXT',
+    'name': 'TEXT',
+    'petrol': 'INTEGER',
+    'diesel': 'INTEGER',
+    'gas': 'INTEGER',
+    'electro': 'INTEGER',
+    'hybrid': 'INTEGER',
+    'plugInHybrid': 'INTEGER',
+    'others': 'INTEGER'
+}
 
 # Step 5: Write data to SQLite database
 conn = sqlite3.connect('cars.sqlite')
