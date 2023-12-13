@@ -6,14 +6,14 @@ url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # Step 2: Reshape the data structure
-# Your original code
 columns_to_keep = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
 new_column_names = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
-df.columns = new_column_names
+column_mapping = dict(zip(columns_to_keep, new_column_names))
 
-df = df.rename(columns=columns_to_keep)
+df.rename(columns=column_mapping, inplace=True)
 
+df = df[new_column_names]
 # Step 3: Validate data
 df = df[df['name'].astype(str).str.isalpha()]
 
