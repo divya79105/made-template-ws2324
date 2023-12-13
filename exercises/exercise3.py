@@ -3,10 +3,12 @@ import sqlite3
 
 # Download data
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
+
+# Read data while skipping metadata
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
-# Keep only selected columns and rename them
-selected_columns = {
+# Specify the columns to keep and their new names
+columns_to_keep = {
     'A': 'date',
     'B': 'CIN',
     'C': 'name',
@@ -19,7 +21,9 @@ selected_columns = {
     'BU': 'others'
 }
 
-df = df.rename(columns=selected_columns)
+# Keep only specified columns and rename them
+df = df[columns_to_keep.keys()]
+df = df.rename(columns=columns_to_keep)
 
 # Data validation
 name_column = [col for col in df.columns if 'name' in col.lower()]
