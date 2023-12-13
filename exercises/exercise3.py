@@ -6,12 +6,23 @@ url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 #2. Reshape data structure
-old_columns = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Insgesamt', 'Insgesamt.1', 'Insgesamt.2', 'Insgesamt.3', 'Insgesamt.4', 'Insgesamt.5', 'Insgesamt.6']
-new_columns = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
+columns_mapping = {
+    'Unnamed: 0': 'date',
+    'Unnamed: 1': 'CIN',
+    'Unnamed: 2': 'name',
+    'Unnamed: 12': 'petrol',
+    'Unnamed: 22': 'diesel',
+    'Unnamed: 33': 'gas',
+    'Unnamed: 42': 'electro',
+    'Unnamed: 52': 'hybrid',
+    'Unnamed: 63': 'plugInHybrid',
+    'Unnamed: 73': 'others'
+}
+df.rename(columns=columns_mapping, inplace=True)
 
-
-df = df[old_columns].rename(columns=dict(zip(old_columns, new_columns)))
-
+# Keep only the specified columns
+selected_columns = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
+df = df[selected_columns]
 #3. Validate data
 # Validate CINs
 df['CIN'] = df['CIN'].apply(lambda x: f'{x:0>5}')
