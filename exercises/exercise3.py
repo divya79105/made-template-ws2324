@@ -21,16 +21,14 @@ selected_columns = {
 
 df = df.rename(columns=selected_columns)
 
-# Identify the actual column names
-name_column = [col for col in df.columns if 'name' in col.lower()]
-CIN_column = [col for col in df.columns if 'cin' in col.lower()]
-
 # Data validation
+name_column = [col for col in df.columns if 'name' in col.lower()]
+
 if name_column:
     df = df[df[name_column[0]].astype(str).apply(lambda x: isinstance(x, str))]  # Validate 'name' as string
 
-if CIN_column:
-    df = df[df[CIN_column[0]].astype(str).apply(lambda x: len(x) == 5 and x.isdigit() or (x.isdigit() and x.startswith('0')))]  # Validate 'CIN'
+# Ensure 'CIN' column is a string of length 5
+df['CIN'] = df['CIN'].astype(str).apply(lambda x: x.zfill(5) if x.isdigit() else x)
 
 # Drop rows with missing or invalid values
 df = df.dropna()
