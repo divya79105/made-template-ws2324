@@ -10,7 +10,7 @@ df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, 
 columns= ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'M', 'W', 'AG', 'AQ', 'BA', 'BK', 'BU']
 new_column= ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
-df = df[columns].rename(columns=dict(zip(column, new_column_names)))
+df = df[columns].rename(column=dict(zip(columns, new_columns)))
 
 #3. Validate data
 # Validate CINs
