@@ -5,7 +5,6 @@ import sqlite3
 url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00.csv"
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
-
 # Step 2: Reshape the data structure
 columns_to_keep = {
     'A': 'date',
@@ -26,13 +25,14 @@ df = df.rename(columns=columns_to_keep)
 
 # Step 3: Validate data
 df = df[df['name'].astype(str).str.isalpha()]
+
 # Validate CINs
 df['CIN'] = df['CIN'].astype(str).apply(lambda x: x.zfill(5) if x.isdigit() else x)
 
-# Validate positive integers
+# Validate positive integers using pd.to_numeric
 numeric_columns = ['petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 for col in numeric_columns:
-    df = df[df[col].astype(str).apply(lambda x: x.isdigit() and int(x) > 0)]
+    df[col] = pd.to_numeric(df[col], errors='coerce')
 
 # Drop rows with missing or invalid values
 df = df.dropna()
@@ -58,4 +58,3 @@ sqlite_types = {
 conn = sqlite3.connect('cars.sqlite')
 df.to_sql('cars', conn, index=False, if_exists='replace', dtype=sqlite_types)
 conn.close()
-
