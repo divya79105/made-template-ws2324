@@ -6,10 +6,10 @@ url = "https://www-genesis.destatis.de/genesis/downloads/00/tables/46251-0021_00
 df = pd.read_csv(url, sep=";", encoding='ISO-8859-1', skiprows=6, skipfooter=4, engine='python')
 
 # Step 2: Reshape the data structure
-df = df.loc[:, columns_to_keep].rename(columns=dict(zip(columns_to_keep, new_column_names)))
+old_columns = ['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'M', 'W', 'AG', 'AQ', 'BA', 'BK', 'BU']
+new_columns = ['date', 'CIN', 'name', 'petrol', 'diesel', 'gas', 'electro', 'hybrid', 'plugInHybrid', 'others']
 
-df = df.rename(columns=dict(zip(columns_to_keep, new_column_names)))[new_column_names]
-
+df = df[old_columns].rename(columns=dict(zip(old_columns, new_columns)))
 
 # Step 3: Validate data
 # Validate CINs
