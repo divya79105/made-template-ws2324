@@ -16,7 +16,7 @@ class TestDataProcessing(unittest.TestCase):
             self.db_path2 = '../data/weather_data.sqlite'
             self.conn2 = sqlite3.connect(self.db_path2)
             self.query2 = f"SELECT * FROM weather;"
-            self.airbnb_df = pd.read_sql_query(self.query2, self.conn2)
+            self.weather_df = pd.read_sql_query(self.query2, self.conn2)
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
             
