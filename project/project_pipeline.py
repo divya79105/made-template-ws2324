@@ -12,11 +12,11 @@ hotel_booking_path = "hotel-booking-demand/hotel_bookings.csv"
 weather_data_path = "weather-dataset/weatherHistory.csv"
 
 # Establish connections within a context manager (using 'with' statement)
-with sqlite3.connect("hotel_booking.sqlite") as conn1:
+with sqlite3.connect("..data/hotel_booking.sqlite") as conn1:
     hotel_booking_data = pd.read_csv(hotel_booking_path)
     hotel_booking_data.to_sql("hotel_booking", conn1, index=False, if_exists="replace")
 
-with sqlite3.connect("weather_data.sqlite") as conn2:
+with sqlite3.connect("..data/weather_data.sqlite") as conn2:
     weather_data = pd.read_csv(weather_data_path)
     weather_data.to_sql("weather_data", conn2, index=False, if_exists="replace")
 
