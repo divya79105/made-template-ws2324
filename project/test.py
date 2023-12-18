@@ -18,8 +18,9 @@ class TestDataProcessing(unittest.TestCase):
             self.columns2 = ['Formatted Date', 'Summary', 'Precip Type', 'Temperature (C)', 'Apparent Temperature (C)',
                              'Humidity', 'Wind Speed (km/h)', 'Wind Bearing (degrees)', 'Visibility (km)', 'Loud Cover',
                              'Pressure (millibars)', 'Daily Summary']
-            print(f"Tables in {self.db_path2}: {self.conn2.execute('SELECT name FROM sqlite_master WHERE type="table";').fetchall()}")
+            print(f"Tables in {self.db_path2}: {self.conn2.execute('SELECT name FROM sqlite_master WHERE type=\"table\";').fetchall()}")
             self.weather_data_df = pd.read_sql_query(f"SELECT * FROM {self.table2};", self.conn2)
+
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
 
