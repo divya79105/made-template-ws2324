@@ -27,9 +27,9 @@ class TestDataProcessing(unittest.TestCase):
         try:
             # Set up SQLite databases
             self.conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
-            self.table1 = 'hotel_bookings'
+            self.table1 = 'hotel_booking'
             self.columns1 = self.get_column_names(self.conn1, self.table1)
-            self.print_tables(self.conn1, 'hotel_bookings.sqlite')
+            self.print_tables(self.conn1, 'hotel_booking.sqlite')
 
             self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
             self.table2 = 'weather_data'
@@ -47,7 +47,7 @@ class TestDataProcessing(unittest.TestCase):
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
             table_names = [table[0] for table in tables]
-            self.assertIn('hotel_bookings', table_names)
+            self.assertIn('hotel_booking', table_names)
             print("Test passed: hotel_bookings table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
