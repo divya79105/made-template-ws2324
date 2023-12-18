@@ -5,25 +5,36 @@ import pandas as pd
 
 class TestDataProcessing(unittest.TestCase):
 
+    def execute_query(conn, query):
+        try:
+            result = conn.execute(query).fetchall()
+            return result
+        except Exception as e:
+            raise Exception(f"Error executing SQL query: {e}")
+
+    def read_table(conn, table_name):
+        try:
+            df = pd.read_sql_query(f"SELECT * FROM {table_name};", conn)
+            return df
+        except Exception as e:
+            raise Exception(f"Error reading data from {table_name}: {e}")
+
     def setUp(self):
         try:
             # Set up SQLite databases
             self.db_path1 = '../data/hotel_bookings.sqlite'
             self.conn1 = sqlite3.connect(self.db_path1)
             self.table1 = 'hotel_bookings'
-            self.columns1 = ['hotel', 'is_canceled', 'lead_time', 'arrival_date_year', 'arrival_date_month', 'arrival_date_week_number', 'arrival_date_day_of_month', 'stays_in_weekend_nights', 'stays_in_week_nights', 'adults', 'children', 'babies', 'meal', 'country', 'market_segment', 'distribution_channel', 'is_repeated_guest', 'previous_cancellations', 'previous_bookings_not_canceled', 'reserved_room_type', 'assigned_room_type', 'booking_changes', 'deposit_type', 'agent', 'company', 'days_in_waiting_list', 'customer_type', 'adr', 'required_car_parking_spaces', 'total_of_special_requests', 'reservation_status', 'reservation_status_date']
-            print(f"Tables in {self.db_path1}: {self.conn1.execute('SELECT name FROM sqlite_master WHERE type=\"table\";').fetchall()}")
-            
+            self.columns1 = [...]  # Your columns list
+            print(f"Tables in {self.db_path1}: {execute_query(self.conn1, 'SELECT name FROM sqlite_master WHERE type=\"table\";')}")
 
             self.db_path2 = '../data/weather_data.sqlite'
             self.conn2 = sqlite3.connect(self.db_path2)
             self.table2 = 'weather_data'
-            self.columns2 = ['Formatted Date', 'Summary', 'Precip Type', 'Temperature (C)', 'Apparent Temperature (C)',
-                             'Humidity', 'Wind Speed (km/h)', 'Wind Bearing (degrees)', 'Visibility (km)', 'Loud Cover',
-                             'Pressure (millibars)', 'Daily Summary']
-            print(f"Tables in {self.db_path2}: {self.conn2.execute('SELECT name FROM sqlite_master WHERE type=\"table\";').fetchall()}")
+            self.columns2 = [...]  # Your columns list
+            print(f"Tables in {self.db_path2}: {execute_query(self.conn2, 'SELECT name FROM sqlite_master WHERE type=\"table\";')}")
 
-            self.weather_data_df = pd.read_sql_query(f"SELECT * FROM {self.table2};", self.conn2)
+            self.weather_data_df = read_table(self.conn2, self.table2)
 
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
