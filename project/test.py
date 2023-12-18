@@ -47,6 +47,12 @@ class TestDataProcessing(unittest.TestCase):
             table_names = [table[0] for table in cursor.fetchall()]
             print(f"Tables in hotel_bookings.sqlite: {table_names}")  # Debugging statement
     
+            cursor.execute("SELECT sql FROM sqlite_master WHERE type='table';")
+            table_schema = cursor.fetchall()
+            print("Schema of tables:")
+            for schema in table_schema:
+                print(schema[0])  # Debugging statement
+    
             cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table1}';")
             tables = cursor.fetchall()
             table_names = [table[0] for table in tables]
@@ -54,6 +60,7 @@ class TestDataProcessing(unittest.TestCase):
             print(f"Test passed: {self.table1} table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
+
 
 
     def test_weather_data_table_exists(self):
