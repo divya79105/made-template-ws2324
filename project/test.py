@@ -39,7 +39,7 @@ class TestDataProcessing(unittest.TestCase):
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
 
-   def test_hotelbooking_table_exists(self):
+    def test_hotelbooking_table_exists(self):
         try:
             # Test if the hotel_bookings table exists in the database
             cursor = self.conn1.cursor()
