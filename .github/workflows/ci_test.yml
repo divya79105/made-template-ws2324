@@ -24,4 +24,5 @@ jobs:
         python-version: 3.11
 
     - name: Run tests
-      run: sh ./project/test.sh
+      working-directory: "./project"
+      run: sh ./test.sh
