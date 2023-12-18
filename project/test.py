@@ -1,7 +1,5 @@
 import unittest
 import sqlite3
-import pandas as pd
-
 
 class TestDataProcessing(unittest.TestCase):
 
@@ -19,27 +17,30 @@ class TestDataProcessing(unittest.TestCase):
         tables = self.execute_query(conn, query)
         print(f"Tables in {db_name}: {tables}")
 
+    def get_column_names(self, conn, table_name):
+        query = f"PRAGMA table_info({table_name});"
+        columns = self.execute_query(conn, query)
+        column_names = [column[1] for column in columns]
+        return column_names
+
     def setUp(self):
         try:
             # Set up SQLite databases
             self.conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
             self.table1 = 'hotel_bookings'
-            self.columns1 = [...]  # Define your columns list
+            self.columns1 = self.get_column_names(self.conn1, self.table1)
             self.print_tables(self.conn1, 'hotel_bookings.sqlite')
 
             self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
             self.table2 = 'weather_data'
-            self.columns2 = [...]  # Define your columns list
+            self.columns2 = self.get_column_names(self.conn2, self.table2)
             self.print_tables(self.conn2, 'weather_data.sqlite')
-
-            self.weather_data_df = pd.read_sql_query('SELECT * FROM weather_data;', self.conn2)
 
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
 
     def test_hotelbooking_table_exists(self):
         try:
-            # Test if the hotel_bookings table exists in the database
             cursor = self.conn1.cursor()
             cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table1}';")
             tables = cursor.fetchall()
@@ -51,7 +52,6 @@ class TestDataProcessing(unittest.TestCase):
 
     def test_weather_data_table_exists(self):
         try:
-            # Test if the weather_data table exists in the database
             cursor = self.conn2.cursor()
             cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table2}';")
             tables = cursor.fetchall()
