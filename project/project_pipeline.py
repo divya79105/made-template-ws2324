@@ -1,23 +1,30 @@
-import pandas as pd
-import sqlite3
 import opendatasets as od
+import sqlite3
+import pandas as pd
 
-hotel_booking_url = "https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand/download?datasetVersionNumber=1"
-weather_data_url = "https://www.kaggle.com/datasets/muthuj7/weather-dataset"
+###### Testing Github actions #########
 
-od.download(hotel_booking_url)
-od.download(weather_data_url)
+hotel_booking_dataset = 'https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand/download?datasetVersionNumber=1'
 
-hotel_booking_path = "hotel-booking-demand/hotel_bookings.csv"
-weather_data_path = "weather-dataset/weatherHistory.csv"
+weather_dataset = 'https://www.kaggle.com/datasets/muthuj7/weather-dataset/download?datasetVersionNumber=1'
 
-# Establish connections within a context manager (using 'with' statement)
-with sqlite3.connect("../data/hotel_booking.sqlite") as conn1:
-    hotel_booking_data = pd.read_csv(hotel_booking_path)
-    hotel_booking_data.to_sql("hotel_booking", conn1, index=False, if_exists="replace")
+od.download(hotel_booking_dataset)
 
-with sqlite3.connect("../data/weather_data.sqlite") as conn2:
-    weather_data = pd.read_csv(weather_data_path)
-    weather_data.to_sql("weather_data", conn2, index=False, if_exists="replace")
+file_path = 'hotel-booking-demand/hotel_bookings.csv'
+hotelbooking_df = pd.read_csv(file_path)
+db_path1 = 'hotel_bookings.sqlite'
+conn = sqlite3.connect(db_path1)
+hotelbooking_df.to_sql('hotel_bookings', conn, index=False, if_exists='replace')
+print("Database Created And stored at /data/hotel_bookings.sqlite")
 
-print("Datasets are pulled and stored in /data directory")
+
+od.download(weather_dataset)
+
+file_path = 'weather-dataset/weatherHistory.csv'
+airbnb_df = pd.read_csv(file_path)
+db_path2 = 'weather.sqlite'
+conn = sqlite3.connect(db_path2)
+airbnb_df.to_sql('weather', conn, index=False, if_exists='replace')
+print("Database Created And stored at /data/weather.sqlite")
+
+conn.close()
