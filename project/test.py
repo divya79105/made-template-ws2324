@@ -31,10 +31,10 @@ class TestDataProcessing(unittest.TestCase):
             self.columns1 = self.get_column_names(self.conn1, self.table1)
             self.print_tables(self.conn1, 'hotel_bookings.sqlite')
 
-            self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
-            self.table2 = 'weather_data'
+            self.conn2 = sqlite3.connect('../data/weather.sqlite')
+            self.table2 = 'weather'
             self.columns2 = self.get_column_names(self.conn2, self.table2)
-            self.print_tables(self.conn2, 'weather_data.sqlite')
+            self.print_tables(self.conn2, 'weather.sqlite')
 
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
@@ -58,7 +58,7 @@ class TestDataProcessing(unittest.TestCase):
             cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table2}';")
             tables = cursor.fetchall()
             table_names = [table[0] for table in tables]
-            self.assertIn('weather_data', table_names)
+            self.assertIn('weather', table_names)
             print(f"Test passed: {self.table2} table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
