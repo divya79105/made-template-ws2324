@@ -5,7 +5,7 @@ import pandas as pd
 
 class TestDataProcessing(unittest.TestCase):
 
-    def execute_query(conn, query):
+    def execute_query(self, conn, query):
         try:
             cursor = conn.execute(query)
             result = cursor.fetchall()
@@ -13,26 +13,27 @@ class TestDataProcessing(unittest.TestCase):
             return result
         except Exception as e:
             raise Exception(f"Error executing SQL query: {e}")
-    
-    def print_tables(conn, db_name):
+
+    def print_tables(self, conn, db_name):
         query = f"SELECT name FROM sqlite_master WHERE type='table';"
-        tables = execute_query(conn, query)
+        tables = self.execute_query(conn, query)
         print(f"Tables in {db_name}: {tables}")
-    
+
     def setUp(self):
         try:
             # Set up SQLite databases
-            conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
-            print_tables(conn1, 'hotel_bookings.sqlite')
-    
-            conn2 = sqlite3.connect('../data/weather_data.sqlite')
-            print_tables(conn2, 'weather_data.sqlite')
-    
-            self.weather_data_df = pd.read_sql_query('SELECT * FROM weather_data;', conn2)
-    
+            self.conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
+            self.table1 = 'hotel_bookings'
+            self.print_tables(self.conn1, 'hotel_bookings.sqlite')
+
+            self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
+            self.table2 = 'weather_data'
+            self.print_tables(self.conn2, 'weather_data.sqlite')
+
+            self.weather_data_df = pd.read_sql_query('SELECT * FROM weather_data;', self.conn2)
+
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
-
 
     def test_hotelbooking_table_exists(self):
         try:
@@ -45,6 +46,7 @@ class TestDataProcessing(unittest.TestCase):
             print(f"Test passed: {self.table1} table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
+
 
     def test_weather_data_table_exists(self):
         try:
