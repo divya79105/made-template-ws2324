@@ -47,7 +47,8 @@ class TestDataProcessing(unittest.TestCase):
     def test_hotelbooking_table_exists(self):
         try:
             # Print available tables to help with debugging
-            print(f"Tables in {self.db_path1}: {{execute_query(self.conn1, 'SELECT name FROM sqlite_master WHERE type=\"table\";')}}")
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table1}';")
+
 
             # Test if the hotel_booking table exists in the database
             cursor = self.conn1.cursor()
