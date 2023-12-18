@@ -58,7 +58,7 @@ class TestDataProcessing(unittest.TestCase):
             cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table2}';")
             tables = cursor.fetchall()
             table_names = [table[0] for table in tables]
-            self.assertIn(self.table2, table_names, f"Test failed: {self.table2} table does not exist in the database.")
+            self.assertIn('weather_data', table_names)
             print(f"Test passed: {self.table2} table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
