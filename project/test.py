@@ -5,33 +5,33 @@ import pandas as pd
 
 class TestDataProcessing(unittest.TestCase):
 
-def execute_query(conn, query):
-    try:
-        cursor = conn.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        return result
-    except Exception as e:
-        raise Exception(f"Error executing SQL query: {e}")
-
-def print_tables(conn, db_name):
-    query = f"SELECT name FROM sqlite_master WHERE type='table';"
-    tables = execute_query(conn, query)
-    print(f"Tables in {db_name}: {tables}")
-
-def setUp(self):
-    try:
-        # Set up SQLite databases
-        conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
-        print_tables(conn1, 'hotel_bookings.sqlite')
-
-        conn2 = sqlite3.connect('../data/weather_data.sqlite')
-        print_tables(conn2, 'weather_data.sqlite')
-
-        self.weather_data_df = pd.read_sql_query('SELECT * FROM weather_data;', conn2)
-
-    except Exception as e:
-        self.fail(f"Failed to set up test environment: {e}")
+    def execute_query(conn, query):
+        try:
+            cursor = conn.execute(query)
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+        except Exception as e:
+            raise Exception(f"Error executing SQL query: {e}")
+    
+    def print_tables(conn, db_name):
+        query = f"SELECT name FROM sqlite_master WHERE type='table';"
+        tables = execute_query(conn, query)
+        print(f"Tables in {db_name}: {tables}")
+    
+    def setUp(self):
+        try:
+            # Set up SQLite databases
+            conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
+            print_tables(conn1, 'hotel_bookings.sqlite')
+    
+            conn2 = sqlite3.connect('../data/weather_data.sqlite')
+            print_tables(conn2, 'weather_data.sqlite')
+    
+            self.weather_data_df = pd.read_sql_query('SELECT * FROM weather_data;', conn2)
+    
+        except Exception as e:
+            self.fail(f"Failed to set up test environment: {e}")
 
 
     def test_hotelbooking_table_exists(self):
