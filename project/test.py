@@ -24,10 +24,12 @@ class TestDataProcessing(unittest.TestCase):
             # Set up SQLite databases
             self.conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
             self.table1 = 'hotel_bookings'
+            self.columns1 = [...]  # Define your columns list
             self.print_tables(self.conn1, 'hotel_bookings.sqlite')
 
             self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
             self.table2 = 'weather_data'
+            self.columns2 = [...]  # Define your columns list
             self.print_tables(self.conn2, 'weather_data.sqlite')
 
             self.weather_data_df = pd.read_sql_query('SELECT * FROM weather_data;', self.conn2)
@@ -46,7 +48,6 @@ class TestDataProcessing(unittest.TestCase):
             print(f"Test passed: {self.table1} table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
-
 
     def test_weather_data_table_exists(self):
         try:
