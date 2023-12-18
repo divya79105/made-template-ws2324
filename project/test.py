@@ -39,14 +39,16 @@ class TestDataProcessing(unittest.TestCase):
         except Exception as e:
             self.fail(f"Failed to set up test environment: {e}")
 
-    def test_hotelbooking_table_exists(self):
+    def test_hotel_bookings_database(self):
+        print("Running hotel_bookings_database...")
         try:
+            # Test if the hotel_bookings table exists in the database
             cursor = self.conn1.cursor()
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.table1}';")
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
             table_names = [table[0] for table in tables]
-            self.assertIn(self.table1, table_names, f"Test failed: {self.table1} table does not exist in the database.")
-            print(f"Test passed: {self.table1} table exists in the database.")
+            self.assertIn('hotel_bookings', table_names)
+            print("Test passed: hotel_bookings table exists in the database.")
         except Exception as e:
             self.fail(f"Test failed: {e}")
 
