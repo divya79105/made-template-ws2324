@@ -24,20 +24,20 @@ class TestDataProcessing(unittest.TestCase):
         return column_names
 
     def setUp(self):
-        try:
-            # Set up SQLite databases
-            self.conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
-            self.table1 = 'hotel_bookings'
-            self.columns1 = self.get_column_names(self.conn1, self.table1)
-            self.print_tables(self.conn1, 'hotel_bookings.sqlite')
+    try:
+        # Set up SQLite databases
+        self.conn1 = sqlite3.connect('../data/hotel_bookings.sqlite')
+        self.table1 = 'hotel_bookings'
+        self.columns1 = self.get_column_names(self.conn1, self.table1)
+        self.print_tables(self.conn1, 'hotel_bookings.sqlite')
 
-            self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
-            self.table2 = 'weather_data'
-            self.columns2 = self.get_column_names(self.conn2, self.table2)
-            self.print_tables(self.conn2, 'weather_data.sqlite')
+        self.conn2 = sqlite3.connect('../data/weather_data.sqlite')
+        self.table2 = 'weather_data'
+        self.columns2 = self.get_column_names(self.conn2, self.table2)
+        self.print_tables(self.conn2, 'weather_data.sqlite')
 
-        except Exception as e:
-            self.fail(f"Failed to set up test environment: {e}")
+    except Exception as e:
+        self.fail(f"Failed to set up test environment: {e}")
 
     def test_hotelbooking_table_exists(self):
         try:
