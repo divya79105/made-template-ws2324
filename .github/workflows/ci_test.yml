@@ -21,9 +21,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set execute permissions
-        run: chmod +x ./project/test.sh
-
       - name: Run tests
         working-directory: "./project"
-        run: ./test.sh
+        run: sh ./test.sh
