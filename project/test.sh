@@ -14,3 +14,4 @@ ls
 
 # Run the Python script
 python3 project_pipeline.py
+python3 test.py
