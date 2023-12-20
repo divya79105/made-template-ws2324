@@ -1,14 +1,12 @@
-name: Continuous Integration
+name: CI
 
 on:
   push:
-    paths:
-      - project/**
     branches:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +18,5 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Execute tests
-      working-directory: "./project"
-      run: sh ./test.sh
+    - name: Run tests
+      run: sh ./project/test.sh
