@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches:
-    - main
-    paths:
-    - project/**
+      - main
 
 jobs:
   test:
@@ -15,16 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.11
 
     - name: Run tests
-      working-directory: "./project"
-      run: sh ./test.sh
+      run: sh ./project/test.sh
