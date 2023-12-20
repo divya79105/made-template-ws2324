@@ -1,25 +1,22 @@
-name: CI Test
+name: CI
 
 on:
   push:
-    paths:
-      - 'project/**'
     branches:
       - main
 
 jobs:
-  run-tests:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.11'
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Run tests
-        working-directory: "./project"
-        run: sh ./test.sh
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Run tests
+      run: sh ./project/test.sh
