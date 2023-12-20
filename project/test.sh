@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Install Python packages
 pip install pandas pysqlite3 kaggle opendatasets
 
 # Navigate to the correct directory
