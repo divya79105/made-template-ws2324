@@ -3,7 +3,6 @@ name: CI Test
 on:
   push:
     paths:
-      - 'data/**'
       - 'project/**'
     branches:
       - main
