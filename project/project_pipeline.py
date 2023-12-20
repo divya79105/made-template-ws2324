@@ -16,8 +16,8 @@ with sqlite3.connect("../data/hotel_bookings.sqlite") as conn1:
     hotel_booking_data = pd.read_csv(hotel_booking_path)
     hotel_booking_data.to_sql("hotel_bookings", conn1, index=False, if_exists="replace")
 
-with sqlite3.connect("../data/weather_data.sqlite") as conn2:
+with sqlite3.connect("../data/weather.sqlite") as conn2:
     weather_data = pd.read_csv(weather_data_path)
-    weather_data.to_sql("weather_data", conn2, index=False, if_exists="replace")
+    weather_data.to_sql("weather", conn2, index=False, if_exists="replace")
 
 print("Datasets are pulled and stored in /data directory")
