@@ -9,3 +9,5 @@ The analysis unfolded through a series of visualizations, encompassing bar plots
 **Conclusion:**
 
 In conclusion, this project illuminated the dynamic interplay between hotel bookings and weather conditions. The insights derived from the analysis not only enhance our understanding of these patterns but also pave the way for predictive models that can empower the hospitality industry. By understanding these patterns, the hospitality industry can better adapt to customer behaviors and weather-related shifts, ensuring a more resilient and responsive approach to changing trends.
+
+The final report can be found here: [MADE Report]()
