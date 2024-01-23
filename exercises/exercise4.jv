@@ -1,42 +1,40 @@
-pipeline MowestaPipeline {
-    UnzipData: HttpExtractor {
-        url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
-    }
-    -> ReshapeData: ArchiveInterpreter {
-        archiveType: "zip";
-    }
-    -> CsvFilePicker: FilePicker {
-        path: "/data.csv";
-    }
-    -> ValidateData: DataValidator {
-        validations: [
-            "Geraet > 0",
-            // Add other validations as needed
-        ];
-    }
-    -> TransformData: TableTransformer {
-        inputColumns: ["Temperatur", "Batterietemperatur"];
-        outputColumn: "TransformedTemperatures";
-        use: CelsiusToFahrenheit;
-    }
-    transform CelsiusToFahrenheit {
-        from celsius oftype decimal;
-        to fahrenheit oftype decimal;
-        fahrenheit: (celsius * 9/5) + 32;
-    }
-    -> WriteToSQLite: SQLiteLoader {
-        table: "temperatures";
-        file: "./temperatures.sqlite";
-        // Use fitting SQLite types for all columns
-        columnTypes: [
-            "Geraet BIGINT",
-            "Hersteller TEXT",
-            "Model TEXT",
-            "Monat INTEGER",
-            "TransformedTemperatures FLOAT",
-            "Batterietemperatur FLOAT",
-            "Geraet_aktiv TEXT"  // Assuming Geraet_aktiv is a text column
-        ];
-        createTable: true;
-    }
+UnzipData: HttpExtractor {
+    url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+}
+-> ReshapeData: ArchiveInterpreter {
+    archiveType: "zip";
+}
+-> CsvFilePicker: FilePicker {
+    path: "/data.csv";
+}
+-> ValidateData: DataValidator {
+    validations: [
+        "Geraet > 0",
+        // Add other validations as needed
+    ];
+}
+-> TransformData: TableTransformer {
+    inputColumns: ["Temperatur", "Batterietemperatur"];
+    outputColumn: "TransformedTemperatures";
+    use: CelsiusToFahrenheit;
+}
+transform CelsiusToFahrenheit {
+    from celsius oftype decimal;
+    to fahrenheit oftype decimal;
+    fahrenheit: (celsius * 9/5) + 32;
+}
+-> WriteToSQLite: SQLiteLoader {
+    table: "temperatures";
+    file: "./temperatures.sqlite";
+    // Use fitting SQLite types for all columns
+    columnTypes: [
+        "Geraet BIGINT",
+        "Hersteller TEXT",
+        "Model TEXT",
+        "Monat INTEGER",
+        "TransformedTemperatures FLOAT",
+        "Batterietemperatur FLOAT",
+        "Geraet_aktiv TEXT"  // Assuming Geraet_aktiv is a text column
+    ];
+    createTable: true;
 }
