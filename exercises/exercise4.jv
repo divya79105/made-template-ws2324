@@ -1,53 +1,55 @@
+block UnzipData oftype HttpExtractor {
+    url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+}
+
+block ReshapeData oftype ArchiveInterpreter {
+    archiveType: "zip";
+}
+
+block CsvFilePicker oftype FilePicker {
+    path: "/data.csv";
+}
+
+block ValidateData oftype DataValidator {
+    validations: [
+        "Geraet > 0",
+        // Add other validations as needed
+    ];
+}
+
+block TransformData oftype TableTransformer {
+    inputColumns: ["Temperatur", "Batterietemperatur"];
+    outputColumn: "TransformedTemperatures";
+    use: CelsiusToFahrenheit;
+}
+
+transform CelsiusToFahrenheit {
+    from celsius oftype decimal;
+    to fahrenheit oftype decimal;
+    fahrenheit: (celsius * 9/5) + 32;
+}
+
+block WriteToSQLite oftype SQLiteLoader {
+    table: "temperatures";
+    file: "./temperatures.sqlite";
+    // Use fitting SQLite types for all columns
+    columnTypes: [
+        "Geraet BIGINT",
+        "Hersteller TEXT",
+        "Model TEXT",
+        "Monat INTEGER",
+        "TransformedTemperatures FLOAT",
+        "Batterietemperatur FLOAT",
+        "Geraet_aktiv TEXT"  // Assuming Geraet_aktiv is a text column
+    ];
+    createTable: true;
+}
+
 pipeline MowestaPipeline {
-    DownloadData
-        -> UnzipData
+    UnzipData
         -> ReshapeData
-        -> TransformData
+        -> CsvFilePicker
         -> ValidateData
+        -> TransformData
         -> WriteToSQLite;
-
-    block DownloadData oftype HttpExtractor {
-        url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
-    }
-
-    block UnzipData oftype ArchiveExtractor {
-        archiveType: "zip";
-    }
-
-    block ReshapeData oftype CsvFilePicker {
-        path: "/data.csv";
-    }
-
-    block TransformData oftype TableTransformer {
-        inputColumns: ["Temperatur in °C (DWD)", "Batterietemperatur in °C"];
-        outputColumns: ["Temperatur", "Batterietemperatur"];
-        use: CelsiusToFahrenheit;
-    }
-
-    block ValidateData oftype DataValidator {
-        validations: [
-            "Geraet > 0"
-        ];
-    }
-
-    block WriteToSQLite oftype SQLiteLoader {
-        table: "temperatures";
-        file: "./temperatures.sqlite";
-        createTable: true;
-        columnTypes: [
-            "Geraet BIGINT",
-            "Hersteller TEXT",
-            "Model TEXT",
-            "Monat BIGINT",
-            "Temperatur FLOAT",
-            "Batterietemperatur FLOAT",
-            "Geraet_aktiv TEXT"
-        ];
-    }
-
-    transform CelsiusToFahrenheit {
-        from celsius oftype FLOAT;
-        to fahrenheit oftype FLOAT;
-        fahrenheit: (celsius * 9/5) + 32;
-    }
 }
