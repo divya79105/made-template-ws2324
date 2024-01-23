@@ -1,33 +1,38 @@
 pipeline GTFSDataPipeline {
-    DownloadGTFS oftype HttpExtractor {
+    block DownloadGTFS oftype HttpExtractor {
         url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
     }
 
-    ExtractGTFS oftype ArchiveExtractor {
+    block ExtractGTFS oftype ArchiveExtractor {
         archiveType: "zip";
     }
 
-    ReadStops oftype CsvFilePicker {
-        path: "stops.txt";
-        Filter oftype Filter {
-            columns: ["stop_id", "stop_name", "stop_lat", "stop_lon", "zone_id"];
-            condition: "zone_id == 2001";
-        }
+    block ReadStops oftype CsvFilePicker {
+        path: "stops.txt";  # Avoid using a leading dot in file paths
     }
 
-    ValidateData oftype DataValidator {
+    block FilterStops oftype [
+        FilterColumns {
+            filterColumns: ["stop_id", "stop_name", "stop_lat", "stop_lon", "zone_id"];
+        },
+        FilterRows {
+            filterCondition: "zone_id == 2001";
+        }
+    ];
+
+    block ValidateData oftype DataValidator {
         validations: [
             "stop_lat >= -90 and stop_lat <= 90",
             "stop_lon >= -90 and stop_lon <= 90",
             "not isnull(stop_id) and not isnull(stop_name) and not isnull(stop_lat) and not isnull(stop_lon)",
-            "stop_name.matches('^[\\p{L} \\-]+$')"
+            "stop_name.matches('^[\\p{L} \\-]+$')"  # Allows any text with German umlauts
         ];
     }
 
-    WriteToSQLite oftype SQLiteLoader {
+    block WriteToSQLite oftype SQLiteLoader {
         table: "stops";
-        file: "gtfs.sqlite";
-        createTable: true;
+        file: "./gtfs.sqlite";
+        createTable: true;  # Specify whether to create the table if it doesn't exist
         columnTypes: [
             "stop_id TEXT",
             "stop_name TEXT",
