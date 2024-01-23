@@ -1,1 +1,81 @@
+pipeline MowestaPipeline {
+    HttpExtractor(MowestaZipExtractor) -> ArchiveInterpreter(ZipInterpreter) -> FilePicker(CsvFilePicker)
+    -> TextFileInterpreter(CSVTextFileInterpreter) -> CSVInterpreter(DataCsvInterpreter)
+    -> ColumnDeleter(TableColumnDeleter) -> RowDeleter(FirstRowDeleter) -> TableInterpreter(MowestaTableInterpreter)
+    -> TableTransformer(TempCelsiusToFahrenheitTransformer) -> TableTransformer(BatTempCelsiusToFahrenheitTransformer)
+    -> SQLiteLoader(MowestaDBLoader);
+
+    MowestaZipExtractor: HttpExtractor {
+        url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+    }
+
+    ZipInterpreter: ArchiveInterpreter {
+        archiveType: "zip";
+    }
+
+    CsvFilePicker: FilePicker {
+        path: "/data.csv";
+    }
+
+    CSVTextFileInterpreter: TextFileInterpreter {
+        encoding: "utf8";
+    }
+
+    DataCsvInterpreter: CSVInterpreter {
+        delimiter: ";";
+    }
+
+    TableColumnDeleter: ColumnDeleter {
+        delete: ["F", "G", "H", "I", "L", "M", "N", "O"];
+    }
+
+    FirstRowDeleter: RowDeleter {
+        delete: [1];
+    }
+
+    MowestaTableInterpreter: TableInterpreter {
+        header: false;
+        columns: [
+            "Geraet" PosIntegerType,
+            "Hersteller" text,
+            "Model" text,
+            "Monat" integer,
+            "Temperatur" decimal,
+            "Batterietemperatur" decimal,
+            "Geraet aktiv" text
+        ];
+    }
+
+    TempCelsiusToFahrenheitTransformer: TableTransformer {
+        inputColumns: ["Temperatur"];
+        outputColumn: "Temperatur";
+        use: CelsiusToFahrenheit;
+    }
+
+    BatTempCelsiusToFahrenheitTransformer: TableTransformer {
+        inputColumns: ["Batterietemperatur"];
+        outputColumn: "Batterietemperatur";
+        use: CelsiusToFahrenheit;
+    }
+
+    CelsiusToFahrenheit: Transformer {
+        from celsius decimal;
+        to fahrenheit decimal;
+        fahrenheit: (celsius * 9/5) + 32;
+    }
+
+    MowestaDBLoader: SQLiteLoader {
+        table: "temperatures";
+        file: "./temperatures.sqlite";
+    }
+
+    PosIntegerType: integer {
+        constraints: [PostRange];
+    }
+
+    PostRange: RangeConstraint {
+        lowerBound: 1;
+        lowerBoundInclusive: true;
+    }
+}
 
