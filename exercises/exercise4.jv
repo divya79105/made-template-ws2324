@@ -2,7 +2,6 @@ pipeline MPipeline {
     MExtractor
         -> MArchiveInterpreter
         -> MFilePicker
-        -> MFileInterpreter
         -> MCSVTextFileInterpreter
         -> MCSVInterpreter
         -> RenameColumns
