@@ -8,7 +8,7 @@ pipeline GTFSDataPipeline {
     }
 
     block ReadStops oftype CsvFilePicker {
-        path: "/stops.txt";
+        path: "stops.txt";  # Avoid using a leading dot in file paths
     }
 
     block FilterStops oftype [
