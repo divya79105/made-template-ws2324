@@ -1,44 +1,40 @@
-pipeline GTFSDataPipeline {
-    block DownloadGTFS oftype HttpExtractor {
-        url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
+pipeline MowestaPipeline {
+    MowestaZipExtractor
+        -> ReshapeData
+        -> TransformData
+        -> ValidateData
+        -> WriteToSQLite;
+
+    block MowestaZipExtractor oftype HttpExtractor {
+        url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block ExtractGTFS oftype ArchiveExtractor {
+    block ReshapeData oftype ArchiveExtractor {
         archiveType: "zip";
     }
 
-    block ReadStops oftype CsvFilePicker {
-        path: "stops.txt";  # Avoid using a leading dot in file paths
+    block TransformData oftype CsvFilePicker {
+        path: "/data.csv";
     }
-
-    block FilterStops oftype [
-        FilterColumns {
-            filterColumns: ["stop_id", "stop_name", "stop_lat", "stop_lon", "zone_id"];
-        },
-        FilterRows {
-            filterCondition: "zone_id == 2001";
-        }
-    ];
 
     block ValidateData oftype DataValidator {
         validations: [
-            "stop_lat >= -90 and stop_lat <= 90",
-            "stop_lon >= -90 and stop_lon <= 90",
-            "not isnull(stop_id) and not isnull(stop_name) and not isnull(stop_lat) and not isnull(stop_lon)",
-            "stop_name.matches('^[\\p{L} \\-]+$')"  # Allows any text with German umlauts
+            "Geraet > 0"
         ];
     }
 
     block WriteToSQLite oftype SQLiteLoader {
-        table: "stops";
-        file: "./gtfs.sqlite";
-        createTable: true;  # Specify whether to create the table if it doesn't exist
+        table: "temperatures";
+        file: "./temperatures.sqlite";
+        createTable: true;
         columnTypes: [
-            "stop_id TEXT",
-            "stop_name TEXT",
-            "stop_lat FLOAT",
-            "stop_lon FLOAT",
-            "zone_id BIGINT"
+            "Geraet BIGINT",
+            "Hersteller TEXT",
+            "Model TEXT",
+            "Monat BIGINT",
+            "Temperatur FLOAT",
+            "Batterietemperatur FLOAT",
+            "Geraet_aktiv TEXT"
         ];
     }
 }
