@@ -1,5 +1,5 @@
 pipeline MowestaPipeline {
-   MExtractor 
+    MExtractor 
     -> MArchiveInterpreter
     -> MFilePicker
     -> MFileInterpreter
@@ -40,6 +40,11 @@ pipeline MowestaPipeline {
     block FirstRowDeleter oftype RowDeleter {
         delete: [row 1];
     }
+
+    valuetype PosIntegerType oftype integer {
+        constraints: [PostRange];
+    }
+
     block RenameTemperaturCellWriter oftype CellWriter {
         at: cell E1;
         write: ["Temperatur"]; 
@@ -62,6 +67,7 @@ pipeline MowestaPipeline {
             "Geraet aktiv" oftype text,
         ];
     }
+
     transform CelsiusToFahrenheit {
         from celsius oftype decimal;
         to fahrenheit oftype decimal;
@@ -84,9 +90,9 @@ pipeline MowestaPipeline {
         table: "temperatures";
         file: "./temperatures.sqlite";
     }
+
     constraint PostRange oftype RangeConstraint {
         lowerBound: 1;
         lowerBoundInclusive: true;
     }
 }
-
