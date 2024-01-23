@@ -1,87 +1,51 @@
-pipeline MowestaPipeline {
-    MowestaZipExtractor
-        -> ZipInterpreter
-        -> CsvFilePicker
-        -> CSVTextFileInterpreter
-        -> DataCsvInterpreter
-        -> TableColumnDeleter
-        -> FirstRowDeleter
-        -> MowestaTableInterpreter
-        -> TempCelsiusToFahrenheitTransformer
-        -> BatTempCelsiusToFahrenheitTransformer
-        -> MowestaDBLoader;
+pipeline GTFSDataPipeline {
+    DownloadGTFS
+        -> ExtractGTFS
+        -> ReadStops
+        -> FilterStops
+        -> ValidateData
+        -> WriteToSQLite;
 
-    
-    block MowestaZipExtractor oftype HttpExtractor {
-        url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+    DownloadGTFS: HttpExtractor {
+        url: "https://gtfs.rhoenenergie-bus.de/GTFS.zip";
     }
 
-    block ZipInterpreter oftype ArchiveInterpreter {
+    ExtractGTFS: ArchiveExtractor {
         archiveType: "zip";
     }
 
-    block CsvFilePicker oftype FilePicker {
-        path: "/data.csv";
+    ReadStops: CsvFilePicker {
+        path: "/stops.txt";
     }
 
-    block CSVTextFileInterpreter oftype TextFileInterpreter {
-        encoding: "utf8";
-    }
+    FilterStops: [
+        FilterColumns {
+            filterColumns: ["stop_id", "stop_name", "stop_lat", "stop_lon", "zone_id"];
+        },
+        FilterRows {
+            filterCondition: "zone_id == 2001";
+        }
+    ];
 
-    block DataCsvInterpreter oftype CSVInterpreter {
-        delimiter: ";";
-    }
-
-    block TableColumnDeleter oftype ColumnDeleter {
-        delete: [column F, column G, column H, column I, column L, column M, column N, column O];
-    }
-
-    block FirstRowDeleter oftype RowDeleter {
-        delete: [row 1];
-    }
-
-    block MowestaTableInterpreter oftype TableInterpreter {
-        header: false;
-        columns: [
-            "Geraet" oftype PosIntegerType,
-            "Hersteller" oftype text,
-            "Model" oftype text,
-            "Monat" oftype integer,
-            "Temperatur" oftype decimal,
-            "Batterietemperatur" oftype decimal,
-            "Geraet aktiv" oftype text,
+    ValidateData: DataValidator {
+        validations: [
+            "stop_lat >= -90 and stop_lat <= 90",
+            "stop_lon >= -90 and stop_lon <= 90",
+            "not isnull(stop_id) and not isnull(stop_name) and not isnull(stop_lat) and not isnull(stop_lon)",
+            "stop_name.matches('^[\\p{L} \\-]+$')"  # Allows any text with German umlauts
         ];
     }
 
-    block TempCelsiusToFahrenheitTransformer oftype TableTransformer {
-        inputColumns: ["Temperatur"];
-        outputColumn: "Temperatur";
-        use: CelsiusToFahrenheit;
-    }
-
-    block BatTempCelsiusToFahrenheitTransformer oftype TableTransformer {
-        inputColumns: ["Batterietemperatur"];
-        outputColumn: "Batterietemperatur";
-        use: CelsiusToFahrenheit;
-    }
-
-    transform CelsiusToFahrenheit {
-        from celsius oftype decimal;
-        to fahrenheit oftype decimal;
-        fahrenheit: (celsius * 9/5) + 32;
-    }
-
-    block MowestaDBLoader oftype SQLiteLoader {
-        table: "temperatures";
-        file: "./temperatures.sqlite";
-    }
-
-    valuetype PosIntegerType oftype integer {
-        constraints: [ PostRange ];
-    }
-
-    constraint PostRange oftype RangeConstraint {
-        lowerBound: 1;
-        lowerBoundInclusive: true;
+    WriteToSQLite: SQLiteLoader {
+        table: "stops";
+        file: "./gtfs.sqlite";
+        createTable: true;  # Specify whether to create the table if it doesn't exist
+        columnTypes: [
+            "stop_id TEXT",
+            "stop_name TEXT",
+            "stop_lat FLOAT",
+            "stop_lon FLOAT",
+            "zone_id BIGINT"
+        ];
     }
 }
