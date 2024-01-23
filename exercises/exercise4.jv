@@ -1,20 +1,27 @@
 pipeline MowestaPipeline {
-    MowestaZipExtractor
+    DownloadData
+        -> UnzipData
         -> ReshapeData
         -> TransformData
         -> ValidateData
         -> WriteToSQLite;
 
-    block MowestaZipExtractor oftype HttpExtractor {
+    block DownloadData oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block ReshapeData oftype ArchiveExtractor {
+    block UnzipData oftype ArchiveExtractor {
         archiveType: "zip";
     }
 
-    block TransformData oftype CsvFilePicker {
+    block ReshapeData oftype CsvFilePicker {
         path: "/data.csv";
+    }
+
+    block TransformData oftype TableTransformer {
+        inputColumns: ["Temperatur in °C (DWD)", "Batterietemperatur in °C"];
+        outputColumns: ["Temperatur", "Batterietemperatur"];
+        use: CelsiusToFahrenheit;
     }
 
     block ValidateData oftype DataValidator {
@@ -36,5 +43,11 @@ pipeline MowestaPipeline {
             "Batterietemperatur FLOAT",
             "Geraet_aktiv TEXT"
         ];
+    }
+
+    transform CelsiusToFahrenheit {
+        from celsius oftype FLOAT;
+        to fahrenheit oftype FLOAT;
+        fahrenheit: (celsius * 9/5) + 32;
     }
 }
