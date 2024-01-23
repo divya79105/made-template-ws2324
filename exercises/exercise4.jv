@@ -80,16 +80,13 @@ pipeline MowestaPipeline {
         use: CelsiusToFahrenheit;
     }
 
-    constraint ValidGeraetNumberRange on decimal:
-        value > 0;
-
-    valuetype ValidGeraetNumber oftype integer {
-        constraints: [ ValidGeraetNumberRange ];
-    } 
-    
-
     block BatterieLoader oftype SQLiteLoader {
         table: "temperatures";
         file: "./temperatures.sqlite";
     }
+    constraint PostRange oftype RangeConstraint {
+        lowerBound: 1;
+        lowerBoundInclusive: true;
+    }
+}
 
