@@ -1,29 +1,36 @@
-pipeline MowestaBatteryPipeline {
-    block HttpExtract oftype HttpExtractor {
+pipeline MowestaPipeline {
+   MExtractor 
+    -> MArchiveInterpreter
+    -> MFilePicker
+    -> MFileInterpreter
+    -> MCSVInterpreter
+    -> TableColumnDeleter
+    -> FirstRowDeleter
+    -> RenameTemperaturCellWriter
+    -> RenameTemperaturBatteryCellWriter
+    -> BatterieTableInterpreter
+    -> CelsiusToFahrenheitTransformer
+    -> CelsiusToFahrenheitBatteryTransformer
+    -> BatterieLoader;
+    
+    block MExtractor oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
-    }
+    } 
 
-    block ArchiveExtract oftype ArchiveInterpreter {
+    block MArchiveInterpreter oftype ArchiveInterpreter {
         archiveType: "zip";
+    } 
+
+    block MFilePicker oftype FilePicker {
+        path: "/data.csv"; 
     }
 
-    block CsvFilePicker oftype FilePicker {
-        path: "/data.csv";
-    }
-
-    block DataInterpreter oftype TextFileInterpreter {
+    block MFileInterpreter oftype TextFileInterpreter{
         encoding: "utf8";
     }
 
-    block CsvInterpreter oftype CSVInterpreter {
+    block MCSVInterpreter oftype CSVInterpreter {
         delimiter: ";";
-    }
-
-    block RenameColumns oftype TableColumnRenamer {
-        rename: [
-            { from: "Temperatur in °C (DWD)", to: "Temperatur" },
-            { from: "Batterietemperatur in °C", to: "Batterietemperatur" }
-        ];
     }
 
     block TableColumnDeleter oftype ColumnDeleter {
@@ -33,8 +40,17 @@ pipeline MowestaBatteryPipeline {
     block FirstRowDeleter oftype RowDeleter {
         delete: [row 1];
     }
+    block RenameTemperaturCellWriter oftype CellWriter {
+        at: cell E1;
+        write: ["Temperatur"]; 
+    }
 
-    block MowestaTableInterpreter oftype TableInterpreter {
+    block RenameTemperaturBatteryCellWriter oftype CellWriter {
+        at: cell J1;
+        write: ["Batterietemperatur"]; 
+    }
+
+    block BatterieTableInterpreter oftype TableInterpreter {
         header: false;
         columns: [
             "Geraet" oftype PosIntegerType,
@@ -46,7 +62,6 @@ pipeline MowestaBatteryPipeline {
             "Geraet aktiv" oftype text,
         ];
     }
-
     transform CelsiusToFahrenheit {
         from celsius oftype decimal;
         to fahrenheit oftype decimal;
@@ -70,23 +85,11 @@ pipeline MowestaBatteryPipeline {
 
     valuetype ValidGeraetNumber oftype integer {
         constraints: [ ValidGeraetNumberRange ];
-    }
+    } 
+    
 
     block BatterieLoader oftype SQLiteLoader {
         table: "temperatures";
-        file: "./mowesta_temperatures.sqlite";
+        file: "./temperatures.sqlite";
     }
 
-    HttpExtract
-        -> ArchiveExtract
-        -> CsvFilePicker
-        -> DataInterpreter
-        -> CsvInterpreter
-        -> RenameColumns
-        -> TableColumnDeleter
-        -> FirstRowDeleter
-        -> MowestaTableInterpreter
-        -> CelsiusToFahrenheitTransformer
-        -> CelsiusToFahrenheitBatteryTransformer
-        -> BatterieLoader;
-}
