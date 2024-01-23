@@ -5,7 +5,6 @@ pipeline MowestaPipeline {
     -> MFileInterpreter
     -> MCSVInterpreter
     -> TableColumnDeleter
-    -> FirstRowDeleter
     -> RenameTemperaturCellWriter
     -> RenameTemperaturBatteryCellWriter
     -> BatterieTableInterpreter
@@ -37,9 +36,7 @@ pipeline MowestaPipeline {
         delete: [column F, column G, column H, column I, column L, column M, column N, column O];
     }
 
-    block FirstRowDeleter oftype RowDeleter {
-        delete: [row 1];
-    }
+
 
     valuetype PosIntegerType oftype integer {
         constraints: [PostRange];
