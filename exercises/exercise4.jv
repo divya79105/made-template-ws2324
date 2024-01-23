@@ -1,16 +1,17 @@
 pipeline MPipeline {
     MExtractor
-    -> MArchiveInterpreter
-    -> MFilePicker
-    -> MCSVTextFileInterpreter
-    -> MCSVInterpreter
-    -> RenameColumns
-    -> TableColumnDeleter
-    -> FirstRowDeleter
-    -> BatterieTableInterpreter
-    -> CelsiusToFahrenheitTransformer
-    -> CelsiusToFahrenheitBatteryTransformer
-    -> BatterieLoader;
+        -> MArchiveInterpreter
+        -> MFilePicker
+        -> MFileInterpreter
+        -> MCSVTextFileInterpreter
+        -> MCSVInterpreter
+        -> RenameColumns
+        -> TableColumnDeleter
+        -> FirstRowDeleter
+        -> BatterieTableInterpreter
+        -> CelsiusToFahrenheitTransformer
+        -> CelsiusToFahrenheitBatteryTransformer
+        -> BatterieLoader;
 
     block MExtractor oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
@@ -58,8 +59,6 @@ pipeline MPipeline {
             "Batterietemperatur" oftype decimal,
             "Geraet aktiv" oftype text,
         ];
-        multipleMeasurements: true;
-        discardColumnsAfter: "Geraet aktiv";
     }
 
     transform CelsiusToFahrenheit {
