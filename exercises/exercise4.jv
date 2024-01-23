@@ -1,43 +1,51 @@
 pipeline MowestaPipeline {
-    MowestaZipExtractor
-        -> ZipInterpreter
-        -> CsvFilePicker
-        -> CSVTextFileInterpreter
-        -> DataCsvInterpreter
-        -> TableColumnDeleter
-        -> FirstRowDeleter
-        -> MowestaTableInterpreter
-        -> TempCelsiusToFahrenheitTransformer
-        -> BatTempCelsiusToFahrenheitTransformer
-        -> MowestaDBLoader;
+    HttpExtractor -> ArchiveInterpreter -> FilePicker -> TextFileInterpreter -> CSVInterpreter -> ColumnDeleter -> RowDeleter -> TableInterpreter -> CelsiusToFahrenheitTransformer -> CelsiusToFahrenheitTransformer -> SQLiteLoader;
 
-    
-    block MowestaZipExtractor oftype HttpExtractor {
+    block HttpExtractor oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block ZipInterpreter oftype ArchiveInterpreter {
+    block ArchiveInterpreter oftype ArchiveInterpreter {
         archiveType: "zip";
     }
 
-    block CsvFilePicker oftype FilePicker {
+    block FilePicker oftype FilePicker {
         path: "/data.csv";
     }
 
-    block CSVTextFileInterpreter oftype TextFileInterpreter {
+    block TextFileInterpreter oftype TextFileInterpreter {
         encoding: "utf8";
     }
 
-    block DataCsvInterpreter oftype CSVInterpreter {
+    block CSVInterpreter oftype CSVInterpreter {
         delimiter: ";";
     }
 
-    block TableColumnDeleter oftype ColumnDeleter {
-        delete: [column F, column G, column H, column I, column L, column M, column N, column O];
+    block ColumnDeleter oftype ColumnDeleter {
+        delete: ["G", "H", "I", "L", "M", "N", "O"];
     }
 
-    block FirstRowDeleter oftype RowDeleter {
-        delete: [row 1];
+    block RowDeleter oftype RowDeleter {
+        delete: [1];
+    }
+
+    block TableInterpreter oftype TableInterpreter {
+        header: false;
+        columns: [
+            "Geraet" oftype PosIntegerType,
+            "Hersteller" oftype text,
+            "Model" oftype text,
+            "Monat" oftype integer,
+            "Temperatur" oftype decimal,
+            "Batterietemperatur" oftype decimal,
+            "Geraet aktiv" oftype text
+        ];
+    }
+
+    block CelsiusToFahrenheitTransformer oftype TableTransformer {
+        inputColumns: ["Temperatur"];
+        outputColumn: "Temperatur";
+        use: CelsiusToFahrenheit;
     }
 
     block SQLiteLoader oftype SQLiteLoader {
@@ -55,31 +63,14 @@ pipeline MowestaPipeline {
         ];
     }
 
-    block TempCelsiusToFahrenheitTransformer oftype TableTransformer {
-        inputColumns: ["Temperatur"];
-        outputColumn: "Temperatur";
-        use: CelsiusToFahrenheit;
-    }
-
-    block BatTempCelsiusToFahrenheitTransformer oftype TableTransformer {
-        inputColumns: ["Batterietemperatur"];
-        outputColumn: "Batterietemperatur";
-        use: CelsiusToFahrenheit;
-    }
-
     transform CelsiusToFahrenheit {
         from celsius oftype decimal;
         to fahrenheit oftype decimal;
         fahrenheit: (celsius * 9/5) + 32;
     }
 
-    block MowestaDBLoader oftype SQLiteLoader {
-        table: "temperatures";
-        file: "./temperatures.sqlite";
-    }
-
     valuetype PosIntegerType oftype integer {
-        constraints: [ PostRange ];
+        constraints: [PostRange];
     }
 
     constraint PostRange oftype RangeConstraint {
