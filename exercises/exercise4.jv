@@ -1,48 +1,94 @@
-pipeline MowestaDataPipeline {
-    block MowestaZipExtractor oftype HttpExtractor {
+pipeline MPipeline {
+    MExtractor
+    -> MArchiveInterpreter
+    -> MFilePicker
+    -> MCSVTextFileInterpreter
+    -> MCSVInterpreter
+    -> RenameColumns
+    -> TableColumnDeleter
+    -> FirstRowDeleter
+    -> BatterieTableInterpreter
+    -> CelsiusToFahrenheitTransformer
+    -> CelsiusToFahrenheitBatteryTransformer
+    -> BatterieLoader;
+
+    block MExtractor oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block UnzipData oftype ArchiveExtractor {
+    block MArchiveInterpreter oftype ArchiveInterpreter {
         archiveType: "zip";
     }
 
-    block ReshapeData oftype CsvFilePicker {
-        path: "data.csv";
+    block MFilePicker oftype FilePicker {
+        path: "/data.csv";
     }
 
-    block TransformData oftype TableTransformer {
-        inputColumns: ["Temperatur in °C (DWD)", "Batterietemperatur in °C"];
-        outputColumns: ["Temperatur", "Batterietemperatur"];
-        use: CelsiusToFahrenheit;
+    block MCSVTextFileInterpreter oftype TextFileInterpreter {
+        encoding: "utf8";
+    }
+
+    block MCSVInterpreter oftype CSVInterpreter {
+        delimiter: ";";
+    }
+
+    block RenameColumns oftype TableColumnRenamer {
+        rename: [
+            { from: "Temperatur in °C (DWD)", to: "Temperatur" },
+            { from: "Batterietemperatur in °C", to: "Batterietemperatur" }
+        ];
+    }
+
+    block TableColumnDeleter oftype ColumnDeleter {
+        delete: [column F, column G, column H, column I, column L, column M, column N, column O];
+    }
+
+    block FirstRowDeleter oftype RowDeleter {
+        delete: [row 1];
+    }
+
+    block BatterieTableInterpreter oftype TableInterpreter {
+        header: true;
+        columns: [
+            "Geraet" oftype ValidGeraetNumber,
+            "Hersteller" oftype text,
+            "Model" oftype text,
+            "Monat" oftype integer,
+            "Temperatur" oftype decimal,
+            "Batterietemperatur" oftype decimal,
+            "Geraet aktiv" oftype text,
+        ];
+        multipleMeasurements: true;
+        discardColumnsAfter: "Geraet aktiv";
     }
 
     transform CelsiusToFahrenheit {
-        from celsius oftype decimal;
-        to fahrenheit oftype decimal;
-        fahrenheit: (celsius * 9/5) + 32;
+        from Celsius oftype decimal;
+        to Fahrenheit oftype decimal;
+        Fahrenheit: (Celsius * 1.8) + 32;
     }
 
-    block ValidateData oftype DataValidator {
-        validations: [
-            "Geraet > 0",
-            # Add more validations as needed
-        ];
+    block CelsiusToFahrenheitTransformer oftype TableTransformer {
+        inputColumns: ['Temperatur'];
+        outputColumn: 'Temperatur';
+        use: CelsiusToFahrenheit;
     }
 
-    block SQLiteLoad oftype SQLiteLoader {
+    block CelsiusToFahrenheitBatteryTransformer oftype TableTransformer {
+        inputColumns: ['Batterietemperatur'];
+        outputColumn: 'Batterietemperatur';
+        use: CelsiusToFahrenheit;
+    }
+
+    constraint ValidGeraetNumberRange on decimal:
+        value > 0;
+
+    valuetype ValidGeraetNumber oftype integer {
+        constraints: [ValidGeraetNumberRange];
+    }
+
+    block BatterieLoader oftype SQLiteLoader {
         table: "temperatures";
         file: "./temperatures.sqlite";
-        createTable: true;
-        columnTypes: [
-            "Geraet" oftype BIGINT,
-            "Hersteller" oftype TEXT,
-            "Model" oftype TEXT,
-            "Monat" oftype BIGINT,
-            "Temperatur" oftype FLOAT,
-            "Batterietemperatur" oftype FLOAT,
-            "Geraet aktiv" oftype TEXT,
-        ];
     }
 }
-
