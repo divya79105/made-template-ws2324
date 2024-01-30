@@ -4,30 +4,29 @@ import urllib.request
 import zipfile
 import os
 
-# Initial step: Fetching GTFS dataset from the specified URL
-download_url = "https://gtfs.rhoenenergie-bus.de/GTFS.zip"
-local_zip_filename = "GTFS_Dataset.zip"
-urllib.request.urlretrieve(download_url, local_zip_filename)
+# Step 1: Download GTFS Data
+url = "https://gtfs.rhoenenergie-bus.de/GTFS.zip"
+gtfs_zip_file = "GTFS.zip"
+urllib.request.urlretrieve(url, gtfs_zip_file)
 
-# Extracting files from the downloaded ZIP archive
-with zipfile.ZipFile(local_zip_filename, 'r') as zip_file:
-    zip_file.extractall("Extracted_GTFS")
-stops_txt_path = os.path.join("Extracted_GTFS", "stops.txt")
+# Step 2: Unzip and Read Data
+with zipfile.ZipFile(gtfs_zip_file, 'r') as zip_ref:
+    zip_ref.extractall("GTFS_data")
+stops_file = os.path.join("GTFS_data", "stops.txt")
 
-# Processing the data from stops.txt
-data_stops = pd.read_csv(stops_txt_path)
-filtered_columns = ['stop_id', 'stop_name', 'stop_lat', 'stop_lon', 'zone_id']
-data_stops = data_stops.loc[data_stops['zone_id'] == 2001]
-data_stops = data_stops[(data_stops['stop_lat'] >= -90) & (data_stops['stop_lat'] <= 90) & 
-                        (data_stops['stop_lon'] >= -90) & (data_stops['stop_lon'] <= 90)]
+# Step 3: Data Processing
+stops_df = pd.read_csv(stops_file)
+stops_df = stops_df[['stop_id', 'stop_name', 'stop_lat', 'stop_lon', 'zone_id']]
+stops_df = stops_df[stops_df['zone_id'] == 2001]
+stops_df = stops_df[(stops_df['stop_lat'].between(-90, 90)) & (stops_df['stop_lon'].between(-90, 90))]
 
-# Storing the processed data into an SQLite database
-database_connection = sqlite3.connect('gtfs_database.sqlite')
-data_stops.to_sql(name='filtered_stops', con=database_connection, if_exists='replace', index=False, dtype={
-    'stop_id': 'INTEGER',
+# Step 4: Write to SQLite Database
+conn = sqlite3.connect('gtfs.sqlite')
+stops_df.to_sql('stops', conn, if_exists='replace', index=False, dtype={
+    'stop_id': 'BIGINT',
     'stop_name': 'TEXT',
-    'stop_lat': 'REAL',
-    'stop_lon': 'REAL',
-    'zone_id': 'INTEGER'
+    'stop_lat': 'FLOAT',
+    'stop_lon': 'FLOAT',
+    'zone_id': 'BIGINT'
 })
-database_connection.close()
+conn.close()
