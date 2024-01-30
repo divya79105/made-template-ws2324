@@ -11,7 +11,6 @@ EXTRACTION_FOLDER = "GTFS_Files"
 DB_FILE_PATH = 'gtfs.sqlite'
 
 # Download GTFS data
-print("Downloading GTFS dataset...")
 try:
     urlretrieve(GTFS_ZIP_URL, ZIP_FILE_PATH)
     print("Download completed.")
@@ -20,7 +19,6 @@ except Exception as e:
     raise
 
 # Extract the dataset
-print("Extracting GTFS dataset...")
 try:
     with zipfile.ZipFile(ZIP_FILE_PATH, 'r') as zip_ref:
         zip_ref.extractall(EXTRACTION_FOLDER)
@@ -30,7 +28,6 @@ except Exception as e:
     raise
 
 # Process the stops data
-print("Processing stops data...")
 stops_data_path = join(EXTRACTION_FOLDER, "stops.txt")
 try:
     stops_df = pd.read_csv(stops_data_path)
@@ -43,7 +40,6 @@ except Exception as e:
     raise
 
 # Write data to SQLite database
-print("Writing data to SQLite database...")
 try:
     with sqlite3.connect(DB_FILE_PATH) as conn:
         stops_df.to_sql('stops', conn, if_exists='replace', index=False, dtype={
@@ -55,11 +51,11 @@ try:
         })
     print(f"Data successfully written to {DB_FILE_PATH}.")
 except Exception as e:
-    print(f"Failed to write to the database: {e}")
+    print(f"Failed to write data to the database: {e}")
     raise
 
 # Verify the SQLite database file creation
 if exists(DB_FILE_PATH):
-    print(f"Verification successful: The database file '{DB_FILE_PATH}' exists.")
+    print(f"The database file '{DB_FILE_PATH}' exists.")
 else:
-    print(f"Verification failed: The database file '{DB_FILE_PATH}' does not exist. Check permissions and paths.")
+    print(f"The database file '{DB_FILE_PATH}' does not exist.")
