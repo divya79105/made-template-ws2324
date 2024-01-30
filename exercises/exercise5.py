@@ -28,7 +28,7 @@ stops_filtered = stops_filtered.query("zone_id == 2001 and -90 <= stop_lat <= 90
 
 # Step 4: Save processed data to an SQLite database
 print("Saving data to database...")
-with sqlite3.connect(gtfs.sqlite) as conn:
+with sqlite3.connect(DB_NAME) as conn:
     stops_filtered.to_sql(name='stops', con=conn, if_exists='replace', index=False, dtype={
         'stop_id': 'INTEGER',
         'stop_name': 'TEXT',
